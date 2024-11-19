@@ -1,3 +1,66 @@
+// A Go package that provides a convenient way to handle SQL null values for various data types.
+// This package simplifies the process of scanning SQL results into Go structs by wrapping your target variables and providing custom SQL scanners.
+//
+// Example:
+//
+// package main
+//
+// import (
+//
+//	"database/sql"
+//	"fmt"
+//	"log"
+//	"time"
+//
+//	"github.com/ceebydith/sqlnull"
+//	_ "github.com/mattn/go-sqlite3"
+//
+// )
+//
+//	func main() {
+//	    // Example usage with SQLite3
+//	    db, err := sql.Open("sqlite3", ":memory:")
+//	    if err != nil {
+//	        log.Fatal(err)
+//	    }
+//
+//	    defer db.Close()
+//
+//	    // Create users table with id and username as NOT NULL, phone and verified_at as NULL
+//	    _, err = db.Exec(`CREATE TABLE users (
+//	        id INTEGER PRIMARY KEY NOT NULL,
+//	        username TEXT NOT NULL,
+//	        phone TEXT,
+//	        verified_at DATETIME
+//	    )`)
+//	    if err != nil {
+//	        log.Fatal(err)
+//	    }
+//
+//	    // Insert a sample user for demonstration purposes
+//	    _, err = db.Exec(`INSERT INTO users (id, username, phone, verified_at) VALUES (1, 'johndoe', '123456789', NULL)`)
+//	    if err != nil {
+//	        log.Fatal(err)
+//	    }
+//
+//	    type Customer struct {
+//	        ID         int64
+//	        Username   string
+//	        Phone      *string
+//	        VerifiedAt *time.Time
+//	    }
+//
+//	    var cust Customer
+//	    row := db.QueryRow("SELECT id, username, phone, verified_at FROM users WHERE id=?", 1)
+//	    // for individual target use like below
+//	    // err = row.Scan(sqlnull.Target(&cust.ID), sqlnull.Target(&cust.Username), sqlnull.Target(&cust.Phone), sqlnull.Target(&cust.VerifiedAt))
+//	    err = row.Scan(sqlnull.Scanner(&cust.ID, &cust.Username, &cust.Phone, &cust.VerifiedAt)...)
+//	    if err != nil {
+//	        log.Fatal(err)
+//	    }
+//
+//	    fmt.Printf("Customer: %+v\n", cust)
+//	}
 package sqlnull
 
 import (
